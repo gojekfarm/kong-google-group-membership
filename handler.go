@@ -11,7 +11,7 @@ import (
 
 type Handler struct {
 	mu              sync.Mutex // guards balance
-	AdminService    *admin.Service
+	adminService    *admin.Service
 	CredentialsPath string
 	GroupAdmin      string
 	GroupEmail      string
@@ -22,16 +22,16 @@ func New() interface{} {
 }
 
 func (conf Handler) directoryService() (*admin.Service, error) {
-	if conf.AdminService == nil {
+	if conf.adminService == nil {
 		conf.mu.Lock()
 		adminSvc, err := groups.CreateDirectoryService(conf.GroupAdmin, conf.CredentialsPath)
 		if err != nil {
 			return nil, err
 		}
-		conf.AdminService = adminSvc
+		conf.adminService = adminSvc
 		conf.mu.Unlock()
 	}
-	return conf.AdminService, nil
+	return conf.adminService, nil
 }
 
 func (conf Handler) Access(kong *pdk.PDK) {
