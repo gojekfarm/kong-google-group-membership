@@ -50,12 +50,13 @@ func (conf Handler) Access(kong *pdk.PDK) {
 	isMember, err := adminService.Members.HasMember(conf.GroupEmail, fmt.Sprintf("%v", consumer)).Do()
 
 	if err != nil {
-		kong.Log.Err("Error calling google admin directory service.")
+		kong.Log.Err(fmt.Sprintf("Error calling google admin directory service for consumer %v", consumer))
 		kong.Log.Err(err.Error())
 		return
 	}
 
 	if isMember.IsMember {
+		kong.Log.Debug(fmt.Sprintf("membership: %v", conf.GroupEmail))
 		kong.ServiceRequest.SetHeader("x-group-member", conf.GroupEmail)
 	} else {
 		kong.Nginx.Ask("kong.response.exit", 401)
