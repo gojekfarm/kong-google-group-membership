@@ -1,8 +1,7 @@
-# Kong Go Plugins
+# WIP: Note this is in wip. Please refer only as a kong golang plugin example.
+# Kong Google Groups Membership Check
 
-[Kong](https://konghq.com) plugins written in Go. This repo contains a couple
-of examples to get you started:
+[Kong](https://konghq.com) plugin written in Go using [go-pdk](https://github.com/Kong/go-pdk/)
 
-* **go-hello**: a "hello world" plugin, which reads a request header
-  and sets a response header.
-* **go-log**: a reimplementation of Kong's `file-log` plugin in Go.
+
+Depends on [Kong-oidc](https://github.com/nokia/kong-oidc) for Authentication & setting the user context.
