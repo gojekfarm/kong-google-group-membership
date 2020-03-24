@@ -35,7 +35,7 @@ func (conf Handler) directoryService() (*admin.Service, error) {
 }
 
 func (conf Handler) Access(kong *pdk.PDK) {
-	consumer, err := kong.Nginx.AskMap("ngx.ctx.authenticated_consumer")
+	consumer, err := kong.Nginx.AskMap("ngx.ctx.authenticated_credential")
 	if err != nil {
 		kong.Log.Err(err.Error())
 		kong.Log.Err("This plugin depends on oidc plugin")
