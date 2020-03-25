@@ -1,6 +1,8 @@
 package main
 
 import (
+	b64 "encoding/base64"
+	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -21,6 +23,10 @@ func New() interface{} {
 	return &Handler{}
 }
 
+type xUserInfo struct {
+	id string
+}
+
 func (conf Handler) directoryService() (*admin.Service, error) {
 	if conf.adminService == nil {
 		conf.mu.Lock()
@@ -35,10 +41,23 @@ func (conf Handler) directoryService() (*admin.Service, error) {
 }
 
 func (conf Handler) Access(kong *pdk.PDK) {
-	consumer, err := kong.Request.GetHeader("X-Userinfo")
+	encodedUserInfo, err := kong.Request.GetHeader("X-Userinfo")
+
 	if err != nil {
 		kong.Log.Err(err.Error())
-		kong.Log.Err("This plugin depends on oidc plugin")
+		kong.Log.Err("This plugin depends on oidc plugin: missing header")
+		return
+	}
+	userInfoString, err := b64.StdEncoding.DecodeString(encodedUserInfo)
+	if err != nil {
+		kong.Log.Err(err.Error())
+		kong.Log.Err("This plugin depends on oidc plugin: X-Userinfo was not base64 encoded")
+		return
+	}
+	userInfo := &xUserInfo{}
+	if err := json.Unmarshal(userInfoString, userInfo); err != nil {
+		kong.Log.Err(err.Error())
+		kong.Log.Err("This plugin depends on oidc plugin: X-Userinfo was incorrectly set")
 		return
 	}
 
@@ -47,10 +66,10 @@ func (conf Handler) Access(kong *pdk.PDK) {
 		kong.Log.Err(err.Error())
 		return
 	}
-	isMember, err := adminService.Members.HasMember(conf.GroupEmail, fmt.Sprintf("%v", consumer)).Do()
+	isMember, err := adminService.Members.HasMember(conf.GroupEmail, userInfo.id).Do()
 
 	if err != nil {
-		kong.Log.Err(fmt.Sprintf("Error calling google admin directory service for consumer %v", consumer))
+		kong.Log.Err(fmt.Sprintf("Error calling google admin directory service for consumer %v", userInfo.id))
 		kong.Log.Err(err.Error())
 		return
 	}
