@@ -35,7 +35,7 @@ func (conf Handler) directoryService() (*admin.Service, error) {
 }
 
 func (conf Handler) Access(kong *pdk.PDK) {
-	consumer, err := kong.Nginx.AskMap("ngx.ctx.authenticated_credential")
+	consumer, err := kong.Request.GetHeader("X-Userinfo")
 	if err != nil {
 		kong.Log.Err(err.Error())
 		kong.Log.Err("This plugin depends on oidc plugin")
@@ -47,7 +47,7 @@ func (conf Handler) Access(kong *pdk.PDK) {
 		kong.Log.Err(err.Error())
 		return
 	}
-	isMember, err := adminService.Members.HasMember(conf.GroupEmail, fmt.Sprintf("%v", consumer["username"])).Do()
+	isMember, err := adminService.Members.HasMember(conf.GroupEmail, fmt.Sprintf("%v", consumer)).Do()
 
 	if err != nil {
 		kong.Log.Err(fmt.Sprintf("Error calling google admin directory service for consumer %v", consumer))
