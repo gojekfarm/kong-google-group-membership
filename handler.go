@@ -24,7 +24,7 @@ func New() interface{} {
 }
 
 type xUserInfo struct {
-	id string
+	Id string `json:"id"`
 }
 
 func (conf Handler) directoryService() (*admin.Service, error) {
@@ -66,10 +66,10 @@ func (conf Handler) Access(kong *pdk.PDK) {
 		kong.Log.Err(err.Error())
 		return
 	}
-	isMember, err := adminService.Members.HasMember(conf.GroupEmail, userInfo.id).Do()
+	isMember, err := adminService.Members.HasMember(conf.GroupEmail, userInfo.Id).Do()
 
 	if err != nil {
-		kong.Log.Err(fmt.Sprintf("Error calling google admin directory service for consumer %v", userInfo.id))
+		kong.Log.Err(fmt.Sprintf("Error calling google admin directory service for consumer %v", userInfo.Id))
 		kong.Log.Err(err.Error())
 		return
 	}
